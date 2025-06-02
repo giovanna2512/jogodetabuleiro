@@ -1,0 +1,222 @@
+import java.text.Normalizer;
+import java.util.Random;
+import java.util.Scanner;
+
+public class JogoCharadas {
+
+    private final String[][] charadas = {
+        {"O que um fantasma gosta de comer no cafe da manha?", "Cereal assombrado", "Pao de abobora", "Mingau de ar", "Ovos assombrados", "1"},
+        {"Por que os vampiros nunca brigam?", "Porque tem medo do espelho", "Porque nao gostam de sangue ruim", "Porque nao querem perder a cabeca", "Porque sao muito civilizados", "3"},
+        {"Qual o lugar preferido dos zumbis para tirar ferias?", "Praia dos ossos", "Cemiterio da diversao", "Cidade dos mortos-vivos", "Parque dos sustos", "2"},
+        {"O que uma bruxa usa para se pentear?", "Vassoura", "Pente encantado", "Ramo de arvore", "Gato preto", "2"},
+        {"O que o lobisomem sempre carrega?", "Uma lua cheia", "Um espelho", "Um amuleto de prata", "Uma espada", "3"},
+        {"Qual e o fantasma mais bagunceiro?", "O Poltergeist", "O Espantalho", "O Zumbi", "O Vampiro", "1"},
+        {"Por que os esqueletos nao lutam entre si?", "Porque nao tem coragem", "Porque nao tem nervos", "Porque sao amigos", "Porque tem medo da luz", "2"},
+        {"O que as bruxas usam para voar?", "Tapete magico", "Vassoura", "Carro voador", "Varinha", "2"},
+        {"Por que o cemiterio e um lugar tao popular?", "Porque e silencioso", "Porque esta cheio de gente morta", "Porque tem festas", "Porque e assustador", "2"},
+        {"O que o vampiro usa para se proteger do sol?", "Protetor solar", "Chapinha", "Pente", "Capa", "4"},
+        {"Qual o monstro que adora um rock?", "Frankenstein", "O Lobisomem", "O Zumbi", "O Vampiro", "1"},
+        {"Por que o fantasma foi ao médico?", "Porque estava assombrado", "Porque estava com febre", "Porque estava voando baixo", "Porque estava invisível", "1"},
+        {"O que o esqueleto levou para festa?", "Uma caveira", "Seus ossos", "Um convite", "Um chapeu", "2"},
+        {"Como o vampiro chama sua esposa?", "Querida", "Minhas presas", "Minha draculina", "Amorzinho", "3"},
+        {"Qual o fantasma que é bom cozinheiro?", "O Poltergeist", "O Chef Fantasma", "O Zumbi", "O Vampiro", "2"},
+        {"O que a bruxa colocou no caldeirão?", "Poção do amor", "Suco de morcego", "Sopa de sapo", "Chá de olho de sapo", "1"},
+        {"Por que o lobisomem sempre perde o ônibus?", "Porque viu lua cheia", "Porque ele corre muito", "Porque é de noite", "Porque ele não tem relógio", "4"},
+        {"Qual o bar favorito dos monstros?", "Bar do medo", "Pub do terror", "Cemitério bar", "Taberna assombrada", "3"},
+        {"O que o zumbi gosta de ler?", "Revistas de cérebro", "Livros de terror", "Jornais de mortos", "Quadrinhos", "1"},
+        {"Por que os fantasmas adoram festas?", "Porque podem voar", "Porque tem muita gente", "Porque adoram dançar", "Porque não precisam de convite", "4"}
+    };
+
+    private final int TAMANHO = 5;
+    private final int FINAL_LINHA = TAMANHO - 1;
+    private final int FINAL_COLUNA = TAMANHO - 1;
+
+    public static void main(String[] args) {
+        JogoCharadas jogo = new JogoCharadas();
+        jogo.iniciarJogo();
+    }
+
+   public void iniciarJogo() {
+    try (Scanner input = new Scanner(System.in)) {
+        Random sorteio = new Random();
+
+        exibirIntroducao();
+
+        char[][] tabuleiro = criarTabuleiro();
+        int quantidadeJogadores = solicitarQuantidadeJogadores(input);
+        String[] nomes = new String[quantidadeJogadores];
+        int[][] posicoes = new int[quantidadeJogadores][2];
+
+        inicializarJogadores(input, nomes, posicoes);
+
+        boolean jogoAtivo = true;
+        while (jogoAtivo) {
+            for (int i = 0; i < quantidadeJogadores; i++) {
+                executarTurno(input, sorteio, nomes, posicoes, i, tabuleiro);
+                if (posicoes[i][0] == FINAL_LINHA && posicoes[i][1] == FINAL_COLUNA) {
+                    System.out.println("Parabens " + nomes[i] + "! Voce chegou ao fim do tabuleiro e venceu!");
+                    jogoAtivo = false;
+                    break;
+                }
+            }
+        }
+    } 
+}
+
+
+    public void exibirIntroducao() {
+        System.out.println("==============================================");
+        System.out.println(removerAcentos("BEM-VINDO AO JOGO DE TERROR: CHARADAS ASSOMBRADAS"));
+        System.out.println("==============================================");
+        System.out.println("       .-.");
+        System.out.println("      (o o)  Boo");
+        System.out.println("     |  O \\");
+        System.out.println("     \\    \\");
+        System.out.println("      ~´");
+        System.out.println(removerAcentos("Prepare-se para uma jornada assombrada"));
+        System.out.println(removerAcentos("Quem chegara vivo ate o fim"));
+        System.out.println(removerAcentos("Boa sorte se tiver coragem"));
+    }
+
+    public char[][] criarTabuleiro() {
+        char[][] tabuleiro = new char[TAMANHO][TAMANHO];
+        for (int i = 0; i < TAMANHO; i++) {
+            for (int j = 0; j < TAMANHO; j++) {
+                tabuleiro[i][j] = '.';
+            }
+        }
+        return tabuleiro;
+    }
+
+    public int solicitarQuantidadeJogadores(Scanner input) {
+        int quantidade;
+        do {
+            System.out.print("Quantos jogadores (1 a 4)? ");
+            while (!input.hasNextInt()) {
+                System.out.print(removerAcentos("Digite um numero valido: "));
+                input.next();
+            }
+            quantidade = input.nextInt();
+            input.nextLine();
+        } while (quantidade < 1 || quantidade > 4);
+        return quantidade;
+    }
+
+    public void inicializarJogadores(Scanner input, String[] nomes, int[][] posicoes) {
+        for (int i = 0; i < nomes.length; i++) {
+            System.out.print(removerAcentos("Digite o nome do jogador " + (i + 1) + ": "));
+            nomes[i] = input.nextLine();
+            posicoes[i][0] = 0;
+            posicoes[i][1] = 0;
+        }
+    }
+
+    public void executarTurno(Scanner input, Random sorteio, String[] nomes, int[][] posicoes, int indice, char[][] tabuleiro) {
+    System.out.println(removerAcentos("\nTurno de " + nomes[indice] + " - Posição atual: (" + posicoes[indice][0] + ", " + posicoes[indice][1] + ")"));
+    System.out.print(removerAcentos("Digite 1 para lançar o dado: "));
+
+    int comando = input.nextInt();
+    input.nextLine(); 
+    while (comando != 1) {
+        System.out.print(removerAcentos("Comando invalido. Digite 1 para lançar o dado: "));
+        comando = input.nextInt();
+        input.nextLine();
+    }
+
+    int dado = sorteio.nextInt(6) + 1;
+    System.out.println(removerAcentos("Voce tirou: " + dado));
+
+    moverJogador(posicoes[indice], dado);
+    aplicarCharada(input, sorteio, posicoes[indice], dado);  
+    atualizarTabuleiro(tabuleiro, posicoes, nomes);
+    exibirTabuleiro(tabuleiro, nomes, posicoes);
+}
+
+
+    public void moverJogador(int[] posicao, int passos) {
+        int linha = posicao[0];
+        int coluna = posicao[1];
+       
+        while (passos != 0) {
+            if (passos > 0) {
+                if (coluna < FINAL_COLUNA) {
+                    coluna++;
+                } else if (linha < FINAL_LINHA) {
+                    coluna = 0;
+                    linha++;
+                }
+                passos--;
+            } else {
+                if (coluna > 0) {
+                    coluna--;
+                } else if (linha > 0) {
+                    linha--;
+                    coluna = FINAL_COLUNA;
+                }
+                passos++;
+            }
+        }
+
+        posicao[0] = linha;
+        posicao[1] = coluna;
+        System.out.println("Nova posição: (" + posicao[0] + ", " + posicao[1] + ")");
+    }
+
+    public void aplicarCharada(Scanner input, Random sorteio, int[] posicao, int dado) {
+    String[] charada = charadas[sorteio.nextInt(charadas.length)];
+    System.out.println(removerAcentos("\nCharada: " + charada[0]));
+    for (int i = 1; i <= 4; i++) {
+        System.out.println(i + ". " + removerAcentos(charada[i]));
+    }
+
+    System.out.print(removerAcentos("Sua resposta (1-4): "));
+    String resposta = input.next();
+
+    if (resposta.equals(charada[5])) {
+        System.out.println(removerAcentos("Resposta correta! Voce avanca 1 casa"));
+        moverJogador(posicao, 1);
+    } else {
+        System.out.println(removerAcentos("Resposta errada. Voce volta " + dado + " casa(s)"));
+        moverJogador(posicao, -dado);
+    }
+}
+
+
+    public void atualizarTabuleiro(char[][] tabuleiro, int[][] posicoes, String[] nomes) {
+        for (int i = 0; i < TAMANHO; i++) {
+            for (int j = 0; j < TAMANHO; j++) {
+                tabuleiro[i][j] = '.';
+            }
+        }
+
+        for (int i = 0; i < posicoes.length; i++) {
+            int x = posicoes[i][0];
+            int y = posicoes[i][1];
+            if (x >= 0 && x < TAMANHO && y >= 0 && y < TAMANHO) {
+                tabuleiro[x][y] = (char) ('A' + i);
+            }
+        }
+    }
+
+    public void exibirTabuleiro(char[][] tabuleiro, String[] nomes, int[][] posicoes) {
+        System.out.println("\nTabuleiro Atual:");
+        for (int i = 0; i < TAMANHO; i++) {
+            for (int j = 0; j < TAMANHO; j++) {
+                System.out.print("[" + tabuleiro[i][j] + "] ");
+            }
+            System.out.println();
+        }
+
+        System.out.println("\nLegenda:");
+        for (int i = 0; i < nomes.length; i++) {
+            System.out.println((char) ('A' + i) + " = " + nomes[i]);
+        }
+    }
+
+    public String removerAcentos(String texto) {
+        return Normalizer.normalize(texto, Normalizer.Form.NFD)
+                         .replaceAll("[^\\p{ASCII}]", "");
+    }
+}
+
+
